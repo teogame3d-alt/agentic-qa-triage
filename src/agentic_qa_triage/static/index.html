@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Cost-aware AI-assisted QA incident triage with human approval."
+    />
+    <title>Agentic QA Triage</title>
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/static/styles.css?v=2" />
+  </head>
+  <body>
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Agentic QA Triage home">
+        <span class="brand-mark">AQ</span>
+        <span>Agentic QA Triage</span>
+      </a>
+      <div class="runtime" id="runtime">
+        <span class="pulse"></span>
+        <span>Connecting…</span>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="eyebrow">HUMAN-GATED AI WORKFLOW</div>
+        <h1>Turn noisy bug reports into <span>reviewable QA decisions.</span></h1>
+        <p>
+          A Python agent searches known incidents, proposes severity and a test plan, measures
+          usage, then waits for human approval before the result is accepted.
+        </p>
+        <div class="hero-actions">
+          <a class="button primary" href="#new-incident">Triage an incident</a>
+          <a class="button secondary" href="/docs">Explore API</a>
+        </div>
+      </section>
+
+      <section class="metrics" aria-label="Workflow metrics">
+        <article>
+          <span>INCIDENTS</span>
+          <strong id="metric-incidents">0</strong>
+          <small id="metric-approved">0 human-approved</small>
+        </article>
+        <article>
+          <span>AGENT RUNS</span>
+          <strong id="metric-runs">0</strong>
+          <small id="metric-provider">No provider activity</small>
+        </article>
+        <article>
+          <span>TOKENS</span>
+          <strong id="metric-tokens">0</strong>
+          <small id="metric-cached">0 cached input tokens</small>
+        </article>
+        <article>
+          <span>EST. COST</span>
+          <strong id="metric-cost">—</strong>
+          <small>Current rates are configuration, not code</small>
+        </article>
+      </section>
+
+      <section class="workspace" id="new-incident">
+        <div class="panel form-panel">
+          <div class="panel-heading">
+            <div>
+              <span class="section-number">01</span>
+              <h2>Incident evidence</h2>
+            </div>
+            <button class="text-button" type="button" id="sample-button">Use sample</button>
+          </div>
+
+          <form id="triage-form">
+            <label>
+              Short title
+              <input
+                id="title"
+                name="title"
+                minlength="5"
+                maxlength="200"
+                placeholder="Users enter a login redirect loop"
+                required
+              />
+            </label>
+            <label>
+              Observed behavior
+              <textarea
+                id="description"
+                name="description"
+                minlength="20"
+                maxlength="10000"
+                rows="7"
+                placeholder="Describe what happened, when it happened, and any objective evidence."
+                required
+              ></textarea>
+            </label>
+            <div class="split-fields">
+              <label>
+                Environment
+                <input
+                  id="environment"
+                  name="environment"
+                  maxlength="300"
+                  placeholder="Windows 11, Chrome 141, staging"
+                />
+              </label>
+              <label>
+                Reporter
+                <input
+                  id="reporter"
+                  name="reporter"
+                  maxlength="120"
+                  value="Portfolio demo"
+                />
+              </label>
+            </div>
+            <div class="safety-note">
+              <span>SAFE WRITE POLICY</span>
+              The agent can read known incidents. It cannot approve its own output.
+            </div>
+            <button class="button primary submit" type="submit" id="submit-button">
+              Run triage workflow
+            </button>
+            <p class="form-message" id="form-message" role="status"></p>
+          </form>
+        </div>
+
+        <div class="panel flow-panel">
+          <div class="panel-heading">
+            <div>
+              <span class="section-number">02</span>
+              <h2>Bounded agent loop</h2>
+            </div>
+          </div>
+          <div class="flow">
+            <div class="flow-step active">
+              <span>1</span>
+              <div><strong>Validate evidence</strong><small>Length and schema guardrails</small></div>
+            </div>
+            <div class="flow-line"></div>
+            <div class="flow-step">
+              <span>2</span>
+              <div><strong>Retrieve context</strong><small>Read-only incident tool</small></div>
+            </div>
+            <div class="flow-line"></div>
+            <div class="flow-step">
+              <span>3</span>
+              <div><strong>Structure decision</strong><small>Typed Pydantic output</small></div>
+            </div>
+            <div class="flow-line"></div>
+            <div class="flow-step human">
+              <span>4</span>
+              <div><strong>Human approval</strong><small>Required before acceptance</small></div>
+            </div>
+          </div>
+          <div class="architecture-note">
+            <span>WHY THIS IS AGENTIC</span>
+            The model owns a bounded decision loop and can choose a tool. Application code owns
+            storage, cost limits, and approval.
+          </div>
+        </div>
+      </section>
+
+      <section class="results-section">
+        <div class="results-heading">
+          <div>
+            <span class="section-number">03</span>
+            <h2>Review queue</h2>
+          </div>
+          <button class="text-button" id="refresh-button" type="button">Refresh</button>
+        </div>
+        <div class="empty-state" id="empty-state">
+          <span>NO DRAFTS YET</span>
+          Submit a report to see the agent's decision and approval boundary.
+        </div>
+        <div class="incident-list" id="incident-list"></div>
+      </section>
+    </main>
+
+    <footer>
+      <span>Python · OpenAI Agents SDK · FastAPI · PostgreSQL</span>
+      <span>Built for inspectability, testing, and interview discussion.</span>
+    </footer>
+
+    <script src="/static/app.js?v=2" defer></script>
+  </body>
+</html>

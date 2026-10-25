@@ -1,0 +1,37 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: agentic_qa_triage
+      POSTGRES_USER: triage
+      POSTGRES_PASSWORD: triage_local_only
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U triage -d agentic_qa_triage"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://triage:triage_local_only@db:5432/agentic_qa_triage
+      AGENT_PROVIDER: ${AGENT_PROVIDER:-demo}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5-mini}
+      MAX_AGENT_TURNS: ${MAX_AGENT_TURNS:-4}
+      MAX_INPUT_CHARS: ${MAX_INPUT_CHARS:-12000}
+      OPENAI_INPUT_USD_PER_MILLION: ${OPENAI_INPUT_USD_PER_MILLION:-}
+      OPENAI_CACHED_INPUT_USD_PER_MILLION: ${OPENAI_CACHED_INPUT_USD_PER_MILLION:-}
+      OPENAI_OUTPUT_USD_PER_MILLION: ${OPENAI_OUTPUT_USD_PER_MILLION:-}
+    ports:
+      - "8000:8000"
+
+volumes:
+  postgres_data:

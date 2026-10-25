@@ -1,0 +1,54 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agentic-qa-triage"
+version = "0.1.0"
+description = "A cost-aware QA incident triage application built with Python, OpenAI Agents SDK, and PostgreSQL."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { file = "LICENSE" }
+authors = [{ name = "teogame3d-alt" }]
+dependencies = [
+  "fastapi>=0.160,<1",
+  "openai-agents>=0.24,<1",
+  "psycopg[binary]>=3.2,<4",
+  "pydantic-settings>=2.10,<3",
+  "sqlalchemy>=2.0,<3",
+  "uvicorn[standard]>=0.35,<1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "httpx>=0.28,<1",
+  "pytest>=8.4,<10",
+  "pytest-asyncio>=1.2,<2",
+  "ruff>=0.14,<1",
+]
+
+[project.scripts]
+agentic-qa-triage = "agentic_qa_triage.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agentic_qa_triage"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/src",
+  "/tests",
+  "/docs",
+  "/README.md",
+  "/LICENSE",
+]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
