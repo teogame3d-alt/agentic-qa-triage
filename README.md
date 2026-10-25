@@ -131,11 +131,11 @@ This avoids publishing a stale model price as if it were permanent. See
 - SQLite improves local review and CI portability; PostgreSQL is the documented deployment path.
 - Authentication and role-based approval are outside the current public demo scope.
 
-## AI-assisted development disclosure
+## Current status
 
-This portfolio project was created with AI-assisted implementation. Before presenting it in an
-interview, the repository owner should review the code, run the tests, and be able to explain the
-architecture, safety boundaries, and tradeoffs in their own words.
+Working MVP. The demo provider, OpenAI provider boundary, read-only retrieval tool, human approval
+step, usage tracking, dashboard, and CI are implemented and verified. See [the changelog](CHANGELOG.md)
+for the latest maintenance update.
 
 ## Official reference
 
