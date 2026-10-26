@@ -5,22 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       name="description"
-      content="Cost-aware AI-assisted QA incident triage with human approval."
+      content="Structured QA incident triage with human review."
     />
-    <title>Agentic QA Triage</title>
+    <title>QA Triage</title>
     <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="/static/styles.css?v=2" />
+    <link rel="stylesheet" href="/static/styles.css?v=3" />
   </head>
   <body>
     <div class="ambient ambient-one"></div>
     <div class="ambient ambient-two"></div>
 
     <header class="topbar">
-      <a class="brand" href="/" aria-label="Agentic QA Triage home">
+      <a class="brand" href="/" aria-label="QA Triage home">
         <span class="brand-mark">AQ</span>
-        <span>Agentic QA Triage</span>
+        <span>QA Triage</span>
       </a>
-      <div class="runtime" id="runtime">
+      <div class="runtime" id="runtime" role="status" aria-live="polite">
         <span class="pulse"></span>
         <span>Connecting…</span>
       </div>
@@ -28,38 +28,75 @@
 
     <main>
       <section class="hero">
-        <div class="eyebrow">HUMAN-GATED AI WORKFLOW</div>
-        <h1>Turn noisy bug reports into <span>reviewable QA decisions.</span></h1>
+        <div class="eyebrow">QUALITY INTAKE / INCIDENT REVIEW</div>
+        <h1>Turn incident evidence into <span>a clear QA action plan.</span></h1>
         <p>
-          A Python agent searches known incidents, proposes severity and a test plan, measures
-          usage, then waits for human approval before the result is accepted.
+          Capture what happened, receive a structured QA draft, and approve the next step after a
+          quick human review.
         </p>
         <div class="hero-actions">
-          <a class="button primary" href="#new-incident">Triage an incident</a>
-          <a class="button secondary" href="/docs">Explore API</a>
+          <a class="button primary" href="#new-incident">Start a report</a>
+          <a class="button secondary" href="#results">View activity</a>
         </div>
       </section>
 
       <section class="metrics" aria-label="Workflow metrics">
         <article>
-          <span>INCIDENTS</span>
+          <span>CASES RECEIVED</span>
           <strong id="metric-incidents">0</strong>
-          <small id="metric-approved">0 human-approved</small>
+          <small id="metric-approved-count">0 approved</small>
         </article>
         <article>
-          <span>AGENT RUNS</span>
+          <span>DRAFTS COMPLETED</span>
           <strong id="metric-runs">0</strong>
-          <small id="metric-provider">No provider activity</small>
+          <small id="metric-completion-rate">0% completion</small>
         </article>
         <article>
-          <span>TOKENS</span>
-          <strong id="metric-tokens">0</strong>
-          <small id="metric-cached">0 cached input tokens</small>
+          <span>HUMAN APPROVAL</span>
+          <strong id="metric-approval-rate">0%</strong>
+          <small>Share of received cases approved</small>
         </article>
         <article>
-          <span>EST. COST</span>
-          <strong id="metric-cost">—</strong>
-          <small>Current rates are configuration, not code</small>
+          <span>AVERAGE RESPONSE</span>
+          <strong id="metric-latency">—</strong>
+          <small id="metric-last-activity">Waiting for activity</small>
+        </article>
+      </section>
+
+      <section class="insight-grid" aria-label="Operational statistics">
+        <article class="panel chart-panel">
+          <div class="panel-heading">
+            <div>
+              <span class="panel-label">ACTIVITY</span>
+              <h2>Response activity</h2>
+            </div>
+            <span class="panel-status">LIVE</span>
+          </div>
+          <div class="latency-chart" id="latency-chart" aria-label="Recent response times"></div>
+          <p class="chart-caption">Recent completed cases · response time</p>
+        </article>
+
+        <article class="panel health-panel">
+          <div class="panel-heading">
+            <div>
+              <span class="panel-label">QUALITY</span>
+              <h2>Review status</h2>
+            </div>
+            <span class="panel-status">LIVE</span>
+          </div>
+          <div class="donut-summary">
+            <div class="approval-donut" id="approval-donut" aria-label="Approval rate">
+              <span id="approval-donut-value">0%</span>
+            </div>
+            <div>
+              <strong>Approval rate</strong>
+              <small id="approval-donut-label">Waiting for activity</small>
+            </div>
+          </div>
+          <div class="health-list">
+            <div><span class="health-dot cyan"></span><span>Draft completion</span><strong id="health-completion">0%</strong></div>
+            <div><span class="health-dot green"></span><span>Service status</span><strong id="health-status">Checking</strong></div>
+          </div>
         </article>
       </section>
 
@@ -70,12 +107,14 @@
               <span class="section-number">01</span>
               <h2>Incident evidence</h2>
             </div>
-            <button class="text-button" type="button" id="sample-button">Use sample</button>
           </div>
 
           <form id="triage-form">
             <label>
-              Short title
+              <span class="field-label">
+                <span>Short title</span>
+                <span class="field-meta" id="title-count">0 / 200</span>
+              </span>
               <input
                 id="title"
                 name="title"
@@ -86,7 +125,10 @@
               />
             </label>
             <label>
-              Observed behavior
+              <span class="field-label">
+                <span>Observed behavior</span>
+                <span class="field-meta" id="description-count">0 / 10,000</span>
+              </span>
               <textarea
                 id="description"
                 name="description"
@@ -96,6 +138,7 @@
                 placeholder="Describe what happened, when it happened, and any objective evidence."
                 required
               ></textarea>
+              <small class="field-hint">Use sanitized evidence only. Never paste passwords, API keys, tokens, or customer data.</small>
             </label>
             <div class="split-fields">
               <label>
@@ -113,16 +156,17 @@
                   id="reporter"
                   name="reporter"
                   maxlength="120"
-                  value="Portfolio demo"
+                  placeholder="Name or team"
                 />
               </label>
             </div>
             <div class="safety-note">
-              <span>SAFE WRITE POLICY</span>
-              The agent can read known incidents. It cannot approve its own output.
+              <span>DATA HANDLING</span>
+              The system prepares a draft from the submitted report. A human must approve it
+              before it becomes accepted.
             </div>
             <button class="button primary submit" type="submit" id="submit-button">
-              Run triage workflow
+              Create QA draft
             </button>
             <p class="form-message" id="form-message" role="status"></p>
           </form>
@@ -132,39 +176,39 @@
           <div class="panel-heading">
             <div>
               <span class="section-number">02</span>
-              <h2>Bounded agent loop</h2>
+              <h2>Processing flow</h2>
             </div>
           </div>
           <div class="flow">
             <div class="flow-step active">
               <span>1</span>
-              <div><strong>Validate evidence</strong><small>Length and schema guardrails</small></div>
+              <div><strong>Validate evidence</strong><small>Required fields and safe limits</small></div>
             </div>
             <div class="flow-line"></div>
             <div class="flow-step">
               <span>2</span>
-              <div><strong>Retrieve context</strong><small>Read-only incident tool</small></div>
+              <div><strong>Find context</strong><small>Relevant reference records</small></div>
             </div>
             <div class="flow-line"></div>
             <div class="flow-step">
               <span>3</span>
-              <div><strong>Structure decision</strong><small>Typed Pydantic output</small></div>
+              <div><strong>Prepare QA plan</strong><small>Clear steps and expected checks</small></div>
             </div>
             <div class="flow-line"></div>
             <div class="flow-step human">
               <span>4</span>
-              <div><strong>Human approval</strong><small>Required before acceptance</small></div>
+              <div><strong>Human review</strong><small>Required before acceptance</small></div>
             </div>
           </div>
           <div class="architecture-note">
-            <span>WHY THIS IS AGENTIC</span>
-            The model owns a bounded decision loop and can choose a tool. Application code owns
-            storage, cost limits, and approval.
+            <span>REVIEW STANDARD</span>
+            Every draft includes the reported context, a reproduction path, and a focused test
+            plan before it can be accepted.
           </div>
         </div>
       </section>
 
-      <section class="results-section">
+      <section class="results-section" id="results">
         <div class="results-heading">
           <div>
             <span class="section-number">03</span>
@@ -172,19 +216,20 @@
           </div>
           <button class="text-button" id="refresh-button" type="button">Refresh</button>
         </div>
+        <p class="results-note">Drafts remain unaccepted until a human reviews and approves them.</p>
         <div class="empty-state" id="empty-state">
           <span>NO DRAFTS YET</span>
-          Submit a report to see the agent's decision and approval boundary.
+          Submit a report to see the draft and approval status.
         </div>
         <div class="incident-list" id="incident-list"></div>
       </section>
     </main>
 
     <footer>
-      <span>Python · OpenAI Agents SDK · FastAPI · PostgreSQL</span>
-      <span>Built for inspectability, testing, and interview discussion.</span>
+      <span>Quality intake · Human review · Activity tracking</span>
+      <span>Ready for controlled operational use.</span>
     </footer>
 
-    <script src="/static/app.js?v=2" defer></script>
+    <script src="/static/app.js?v=3" defer></script>
   </body>
 </html>

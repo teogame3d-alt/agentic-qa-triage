@@ -11,7 +11,7 @@ class IncidentCreate(BaseModel):
     title: str = Field(min_length=5, max_length=200)
     description: str = Field(min_length=20, max_length=10_000)
     environment: str = Field(default="Not provided", max_length=300)
-    reporter: str = Field(default="Portfolio demo", max_length=120)
+    reporter: str = Field(default="Unspecified", max_length=120)
 
 
 class TriageDecision(BaseModel):
@@ -74,6 +74,10 @@ class MetricsRead(BaseModel):
     incidents: int
     approved_incidents: int
     runs: int
+    completion_rate: float = Field(ge=0, le=1)
+    approval_rate: float = Field(ge=0, le=1)
+    average_latency_ms: float | None = Field(default=None, ge=0)
+    last_activity_at: datetime | None = None
     input_tokens: int
     cached_input_tokens: int
     output_tokens: int

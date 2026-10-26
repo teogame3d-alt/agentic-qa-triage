@@ -43,6 +43,10 @@ def test_triage_creates_reviewable_draft_and_metrics(client: TestClient) -> None
     assert metrics["incidents"] == 1
     assert metrics["runs"] == 1
     assert metrics["approved_incidents"] == 0
+    assert metrics["completion_rate"] == 1
+    assert metrics["approval_rate"] == 0
+    assert metrics["average_latency_ms"] >= 1
+    assert metrics["last_activity_at"] is not None
     assert metrics["provider_breakdown"] == {"demo": 1}
 
 
@@ -55,6 +59,10 @@ def test_human_approval_is_a_separate_write(client: TestClient) -> None:
     approved = response.json()
     assert approved["status"] == "approved"
     assert approved["approved_at"] is not None
+
+    repeated = client.post(f"/api/incidents/{incident['id']}/approve")
+    assert repeated.status_code == 200
+    assert repeated.json()["approved_at"] == approved["approved_at"]
 
 
 def test_invalid_report_is_rejected_before_the_agent(client: TestClient) -> None:

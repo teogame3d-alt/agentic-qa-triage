@@ -1,30 +1,30 @@
-# Agentic QA Triage
+# QA Incident Triage
 
-Cost-aware incident triage built with Python, OpenAI Agents SDK, FastAPI, and PostgreSQL.
+Incident triage built with Python, FastAPI, and PostgreSQL, with an optional OpenAI provider.
 
 The application turns an unstructured bug report into a structured QA draft: severity, category,
 suspected component, reproduction steps, missing information, and a focused test plan. The agent
 can search a reviewed incident knowledge base, but it cannot approve its own result.
 
-![Agentic QA Triage dashboard](docs/images/dashboard.png)
+![QA Triage dashboard](docs/images/dashboard.png)
 
-## Why this project exists
+## Overview
 
-Real incident reports are often incomplete, inconsistent, and expensive to review. This project
-demonstrates how to add an LLM agent to a normal Python application without giving the model
-unbounded control over persistence or cost.
+Real incident reports are often incomplete or inconsistent. The application converts a report into
+a structured QA draft with a clear reproduction path, missing information, and focused test plan.
+The final acceptance step remains explicit and human-controlled.
 
-## What it demonstrates
+## Capabilities
 
-- OpenAI Agents SDK with a focused Python agent and a read-only function tool
-- structured Pydantic output instead of free-form text parsing
-- FastAPI endpoints and a responsive portfolio dashboard
+- Optional OpenAI provider with a read-only context lookup
+- Structured validation and typed output
+- FastAPI endpoints and a responsive operations dashboard
 - PostgreSQL configuration through Docker Compose
 - SQLite fallback for zero-setup demos and deterministic CI tests
 - human approval before an AI-generated draft becomes accepted data
 - per-run latency, tool-call, token, cached-token, and optional cost tracking
 - bounded input, agent turns, and output size for cost control
-- pytest coverage and GitHub Actions CI
+- Automated tests and GitHub Actions CI
 
 ## Workflow
 
@@ -44,7 +44,7 @@ Typed draft + usage record
 Human review and approval
 ```
 
-![Agentic QA Triage workflow and review queue](docs/images/workflow.png)
+![QA Triage workflow and review queue](docs/images/workflow.png)
 
 The OpenAI SDK runs only when `AGENT_PROVIDER=openai`. The default `demo` provider executes the
 same API, database, dashboard, and approval workflow deterministically, with no API call.
@@ -58,7 +58,7 @@ Copy-Item .env.example .env
 .venv\Scripts\agentic-qa-triage
 ```
 
-Open `http://127.0.0.1:8000` and select **Use sample**.
+Open `http://127.0.0.1:8000`, enter an incident report, and submit it for review.
 
 Run the checks:
 
@@ -116,11 +116,10 @@ This avoids publishing a stale model price as if it were permanent. See
 | `GET` | `/api/metrics` | Usage and cost summary |
 | `GET` | `/docs` | Interactive OpenAPI documentation |
 
-## Design notes
+## Technical notes
 
 - [Architecture and safety boundaries](docs/ARCHITECTURE.md)
 - [Cost-efficiency strategy](docs/COST_EFFICIENCY.md)
-- [Interview guide](docs/INTERVIEW_GUIDE.md)
 
 ## Tradeoffs
 
@@ -131,11 +130,11 @@ This avoids publishing a stale model price as if it were permanent. See
 - SQLite improves local review and CI portability; PostgreSQL is the documented deployment path.
 - Authentication and role-based approval are outside the current public demo scope.
 
-## Current status
+## Operational status
 
-Working MVP. The demo provider, OpenAI provider boundary, read-only retrieval tool, human approval
-step, usage tracking, dashboard, and CI are implemented and verified. See [the changelog](CHANGELOG.md)
-for the latest maintenance update.
+The demo provider, OpenAI provider boundary, read-only retrieval, human approval step, activity
+tracking, dashboard, and CI are implemented and verified. See [the changelog](CHANGELOG.md) for
+the latest maintenance update.
 
 ## Official reference
 

@@ -33,6 +33,7 @@ body {
   color: var(--text);
   background:
     radial-gradient(circle at 50% -20%, rgba(69, 100, 190, 0.24), transparent 38rem),
+    radial-gradient(circle at 94% 54%, rgba(167, 71, 255, 0.12), transparent 34rem),
     var(--bg);
 }
 
@@ -129,7 +130,7 @@ footer {
 
 .hero {
   max-width: 850px;
-  padding: 110px 0 72px;
+  padding: 96px 0 66px;
 }
 
 .eyebrow,
@@ -145,10 +146,10 @@ footer {
 }
 
 h1 {
-  max-width: 850px;
+  max-width: 790px;
   margin: 18px 0 22px;
-  font-size: clamp(2.9rem, 7vw, 5.8rem);
-  line-height: 0.98;
+  font-size: clamp(2.8rem, 6.5vw, 5.35rem);
+  line-height: 1;
   letter-spacing: -0.065em;
 }
 
@@ -225,6 +226,11 @@ h1 span {
   border-right: 0;
 }
 
+.metrics article:nth-child(1) strong { color: var(--cyan); }
+.metrics article:nth-child(2) strong { color: #a8b9ff; }
+.metrics article:nth-child(3) strong { color: #ff9ed0; }
+.metrics article:nth-child(4) strong { color: #d7b2ff; }
+
 .metrics span {
   color: var(--muted);
   font-family: "SFMono-Regular", Consolas, monospace;
@@ -250,6 +256,13 @@ h1 span {
   gap: 26px;
 }
 
+.insight-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.7fr);
+  gap: 26px;
+  margin-bottom: 26px;
+}
+
 .panel,
 .results-section {
   border: 1px solid var(--line);
@@ -263,15 +276,53 @@ h1 span {
   padding: 30px;
 }
 
+.panel::before {
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  pointer-events: none;
+  content: "";
+  border-radius: inherit;
+  background: linear-gradient(120deg, rgba(97, 229, 208, 0.16), transparent 24%, transparent 76%, rgba(167, 71, 255, 0.13));
+  opacity: 0.65;
+}
+
+.panel {
+  position: relative;
+}
+
 .panel-heading,
 .results-heading {
   display: flex;
-  align-items: start;
+  align-items: center;
   justify-content: space-between;
 }
 
+.panel-heading > div,
+.results-heading > div {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+}
+
+.panel-label,
+.panel-status {
+  color: var(--cyan);
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 0.61rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.panel-status {
+  color: var(--green);
+  padding: 4px 8px;
+  border: 1px solid rgba(115, 233, 157, 0.28);
+  border-radius: 999px;
+}
+
 h2 {
-  margin: 7px 0 0;
+  margin: 0;
   font-size: 1.45rem;
   letter-spacing: -0.035em;
 }
@@ -287,6 +338,13 @@ h2 {
   cursor: pointer;
 }
 
+.text-button:focus-visible,
+.button:focus-visible,
+.approve-button:focus-visible {
+  outline: 3px solid rgba(97, 229, 208, 0.38);
+  outline-offset: 3px;
+}
+
 form {
   display: grid;
   gap: 19px;
@@ -299,6 +357,25 @@ label {
   color: #c1cada;
   font-size: 0.78rem;
   font-weight: 700;
+}
+
+.field-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.field-meta,
+.field-hint {
+  color: #748097;
+  font-size: 0.68rem;
+  font-weight: 500;
+}
+
+.field-hint {
+  margin-top: -2px;
+  line-height: 1.45;
 }
 
 input,
@@ -329,6 +406,11 @@ input:focus,
 textarea:focus {
   border-color: rgba(97, 229, 208, 0.7);
   box-shadow: 0 0 0 3px rgba(97, 229, 208, 0.08);
+}
+
+input:focus-visible,
+textarea:focus-visible {
+  outline: 0;
 }
 
 .split-fields {
@@ -375,6 +457,155 @@ textarea:focus {
 .form-message.error {
   color: var(--red);
 }
+
+.results-note {
+  margin: 9px 0 0;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.chart-panel,
+.health-panel {
+  min-height: 255px;
+}
+
+.latency-chart {
+  display: flex;
+  min-height: 148px;
+  align-items: end;
+  gap: 18px;
+  margin-top: 28px;
+  padding: 12px 12px 0;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 100% 37px, 42px 100%;
+  border-bottom: 1px solid rgba(97, 229, 208, 0.4);
+  border-radius: 10px 10px 0 0;
+}
+
+.chart-bar-group {
+  display: flex;
+  min-width: 24px;
+  height: 100%;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: end;
+  gap: 8px;
+}
+
+.chart-bar {
+  width: min(34px, 72%);
+  min-height: 10px;
+  background: linear-gradient(180deg, #b9a5ff, var(--cyan));
+  border: 1px solid rgba(97, 229, 208, 0.72);
+  border-bottom: 0;
+  border-radius: 7px 7px 0 0;
+  box-shadow: 0 0 20px rgba(97, 229, 208, 0.22);
+}
+
+.chart-bar-group span,
+.chart-empty,
+.chart-caption {
+  color: #738097;
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 0.61rem;
+}
+
+.chart-empty {
+  align-self: center;
+  margin: auto;
+}
+
+.chart-caption {
+  margin: 12px 0 0;
+}
+
+.donut-summary {
+  display: flex;
+  gap: 22px;
+  align-items: center;
+  margin-top: 27px;
+}
+
+.approval-donut {
+  display: grid;
+  width: 126px;
+  height: 126px;
+  flex: 0 0 126px;
+  place-items: center;
+  background: conic-gradient(var(--cyan) var(--approval-angle, 0deg), rgba(255, 255, 255, 0.08) 0deg);
+  border-radius: 50%;
+  box-shadow: 0 0 34px rgba(97, 229, 208, 0.16);
+}
+
+.approval-donut::before {
+  width: 92px;
+  height: 92px;
+  content: "";
+  background: var(--panel-strong);
+  border-radius: 50%;
+}
+
+.approval-donut span {
+  position: absolute;
+  color: var(--text);
+  font-size: 1.45rem;
+  font-weight: 850;
+}
+
+.donut-summary strong,
+.donut-summary small {
+  display: block;
+}
+
+.donut-summary strong {
+  font-size: 0.9rem;
+}
+
+.donut-summary small {
+  max-width: 135px;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.health-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.health-list div {
+  display: grid;
+  grid-template-columns: 8px 1fr auto;
+  gap: 9px;
+  align-items: center;
+  color: #a5afc2;
+  font-size: 0.74rem;
+}
+
+.health-list strong {
+  color: var(--text);
+  font-size: 0.76rem;
+}
+
+.health-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  box-shadow: 0 0 10px currentColor;
+}
+
+.health-dot.cyan { color: var(--cyan); background: var(--cyan); }
+.health-dot.green { color: var(--green); background: var(--green); }
+.status-ready { color: var(--green) !important; }
+.status-error { color: var(--red) !important; }
 
 .flow {
   margin-top: 37px;
@@ -604,6 +835,11 @@ textarea:focus {
   cursor: pointer;
 }
 
+.approve-button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
 .approved-label {
   color: var(--green);
   font-size: 0.76rem;
@@ -633,6 +869,10 @@ footer {
   }
 
   .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .insight-grid {
     grid-template-columns: 1fr;
   }
 

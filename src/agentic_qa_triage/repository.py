@@ -14,7 +14,7 @@ def create_incident(session: Session, payload: IncidentCreate) -> Incident:
         title=payload.title.strip(),
         description=payload.description.strip(),
         environment=payload.environment.strip() or "Not provided",
-        reporter=payload.reporter.strip() or "Portfolio demo",
+        reporter=payload.reporter.strip() or "Unspecified",
     )
     session.add(incident)
     session.flush()
@@ -89,6 +89,10 @@ def approve_incident(session: Session, incident_id: int) -> Incident | None:
     incident = get_incident(session, incident_id)
     if incident is None:
         return None
+    if incident.status == "approved":
+        return incident
+    if incident.status != "draft":
+        return None
     incident.status = "approved"
     incident.approved_at = datetime.now(UTC)
     session.flush()
@@ -125,10 +129,22 @@ def metrics(session: Session) -> dict[str, object]:
     incidents = list(session.scalars(select(Incident)).all())
     runs = list(session.scalars(select(AgentRun)).all())
     costs = [run.estimated_cost_usd for run in runs if run.estimated_cost_usd is not None]
+    approved_incidents = sum(item.status == "approved" for item in incidents)
+    completion_rate = len(runs) / len(incidents) if incidents else 0.0
+    approval_rate = approved_incidents / len(incidents) if incidents else 0.0
+    average_latency_ms = (
+        round(sum(run.duration_ms for run in runs) / len(runs), 1) if runs else None
+    )
+    activity_dates = [item.created_at for item in incidents]
+    activity_dates.extend(run.created_at for run in runs)
     return {
         "incidents": len(incidents),
-        "approved_incidents": sum(item.status == "approved" for item in incidents),
+        "approved_incidents": approved_incidents,
         "runs": len(runs),
+        "completion_rate": round(completion_rate, 4),
+        "approval_rate": round(approval_rate, 4),
+        "average_latency_ms": average_latency_ms,
+        "last_activity_at": max(activity_dates) if activity_dates else None,
         "input_tokens": sum(run.input_tokens for run in runs),
         "cached_input_tokens": sum(run.cached_input_tokens for run in runs),
         "output_tokens": sum(run.output_tokens for run in runs),
